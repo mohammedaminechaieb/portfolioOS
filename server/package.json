@@ -1,0 +1,36 @@
+{
+  "name": "amine-portfolio-api",
+  "version": "1.0.0",
+  "description": "Backend API for Mohamed Amine Chaieb's portfolio",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc && npx prisma generate",
+    "start": "node dist/index.js",
+    "db:migrate": "npx prisma migrate deploy",
+    "db:seed": "tsx src/seed.ts",
+    "db:reset": "npx prisma migrate reset --force",
+    "postinstall": "npx prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "prisma": "^6.1.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

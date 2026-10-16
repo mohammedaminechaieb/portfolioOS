@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ── */
+:root {
+  --accent: #0ea5e9;
+  --accent-dim: #0c8bc7;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1e2a3a #0a0e14;
+}
+
+*::-webkit-scrollbar { width: 6px; }
+*::-webkit-scrollbar-track { background: #0a0e14; }
+*::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: #2d3f54; }
+
+::selection {
+  background: rgba(14, 165, 233, 0.3);
+  color: #fff;
+}
+
+/* ── OS Terminal cursor ── */
+.cursor-blink::after {
+  content: "▌";
+  animation: blink 1s step-end infinite;
+}
+
+/* ── CRT scanline effect ── */
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.05) 0px,
+    rgba(0, 0, 0, 0.05) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 9999;
+}
+
+/* ── Desk wood grain ── */
+.wood-grain {
+  background-image:
+    repeating-linear-gradient(
+      87deg,
+      transparent,
+      transparent 20px,
+      rgba(0,0,0,0.03) 20px,
+      rgba(0,0,0,0.03) 21px
+    ),
+    repeating-linear-gradient(
+      92deg,
+      transparent,
+      transparent 40px,
+      rgba(139,90,43,0.05) 40px,
+      rgba(139,90,43,0.05) 41px
+    );
+}
+
+/* ── Desk paper texture ── */
+.paper-texture {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(0,0,0,0.02) 0%, transparent 60%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 28px,
+      rgba(180,180,210,0.15) 28px,
+      rgba(180,180,210,0.15) 29px
+    );
+}
+
+/* ── Window drag handle ── */
+.window-handle {
+  cursor: grab;
+}
+.window-handle:active {
+  cursor: grabbing;
+}
+
+/* ── Typing animation ── */
+@keyframes typeChar {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.typing-char {
+  opacity: 0;
+  animation: typeChar 0.02s forwards;
+}
+
+/* ── Desk item hover glow ── */
+.desk-item-glow {
+  transition: filter 0.3s, transform 0.3s;
+}
+.desk-item-glow:hover {
+  filter: drop-shadow(0 0 12px rgba(14, 165, 233, 0.4));
+  transform: scale(1.02);
+}
+
+/* ── Book spine styling ── */
+.book-spine {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ── Smooth transitions ── */
+.scene-transition {
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+}
