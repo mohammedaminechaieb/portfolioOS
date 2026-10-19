@@ -42,7 +42,7 @@ function PortfolioApp() {
         >
           <BootSequence
             osName={data.config?.osName || "AmineOS"}
-            version={data.config?.osVersion || "v3.0"}
+            osVersion={data.config?.osVersion || "3.0"}
             onComplete={handleBootDone}
           />
         </motion.div>
