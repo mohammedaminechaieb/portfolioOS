@@ -35,7 +35,7 @@ router.get("/", authMiddleware, async (_req: Request, res: Response) => {
 router.put("/:id/read", authMiddleware, async (req: Request, res: Response) => {
   try {
     const message = await prisma.message.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id as string },
       data: { read: true },
     });
     res.json(message);
@@ -47,7 +47,7 @@ router.put("/:id/read", authMiddleware, async (req: Request, res: Response) => {
 // DELETE /api/messages/:id — admin
 router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
-    await prisma.message.delete({ where: { id: req.params.id } });
+    await prisma.message.delete({ where: { id: req.params.id as string } });
     res.json({ message: "Deleted" });
   } catch {
     res.status(500).json({ error: "Server error" });

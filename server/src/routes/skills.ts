@@ -25,7 +25,7 @@ router.post("/", authMiddleware, async (req: Request, res: Response) => {
 router.put("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const data = req.body; delete data.id;
-    const item = await prisma.skill.update({ where: { id: req.params.id }, data });
+    const item = await prisma.skill.update({ where: { id: req.params.id as string }, data });
     res.json(item);
   } catch {
     res.status(500).json({ error: "Server error" });
@@ -34,7 +34,7 @@ router.put("/:id", authMiddleware, async (req: Request, res: Response) => {
 
 router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
-    await prisma.skill.delete({ where: { id: req.params.id } });
+    await prisma.skill.delete({ where: { id: req.params.id as string } });
     res.json({ message: "Deleted" });
   } catch {
     res.status(500).json({ error: "Server error" });

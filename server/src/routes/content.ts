@@ -23,14 +23,14 @@ router.post("/education", authMiddleware, async (req: Request, res: Response) =>
 router.put("/education/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const data = req.body; delete data.id;
-    const item = await prisma.education.update({ where: { id: req.params.id }, data });
+    const item = await prisma.education.update({ where: { id: req.params.id as string }, data });
     res.json(item);
   } catch { res.status(500).json({ error: "Server error" }); }
 });
 
 router.delete("/education/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
-    await prisma.education.delete({ where: { id: req.params.id } });
+    await prisma.education.delete({ where: { id: req.params.id as string } });
     res.json({ message: "Deleted" });
   } catch { res.status(500).json({ error: "Server error" }); }
 });
@@ -54,14 +54,14 @@ router.post("/competitions", authMiddleware, async (req: Request, res: Response)
 router.put("/competitions/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const data = req.body; delete data.id;
-    const item = await prisma.competition.update({ where: { id: req.params.id }, data });
+    const item = await prisma.competition.update({ where: { id: req.params.id as string }, data });
     res.json(item);
   } catch { res.status(500).json({ error: "Server error" }); }
 });
 
 router.delete("/competitions/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
-    await prisma.competition.delete({ where: { id: req.params.id } });
+    await prisma.competition.delete({ where: { id: req.params.id as string } });
     res.json({ message: "Deleted" });
   } catch { res.status(500).json({ error: "Server error" }); }
 });
@@ -85,14 +85,14 @@ router.post("/certifications", authMiddleware, async (req: Request, res: Respons
 router.put("/certifications/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const data = req.body; delete data.id;
-    const item = await prisma.certification.update({ where: { id: req.params.id }, data });
+    const item = await prisma.certification.update({ where: { id: req.params.id as string }, data });
     res.json(item);
   } catch { res.status(500).json({ error: "Server error" }); }
 });
 
 router.delete("/certifications/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
-    await prisma.certification.delete({ where: { id: req.params.id } });
+    await prisma.certification.delete({ where: { id: req.params.id as string } });
     res.json({ message: "Deleted" });
   } catch { res.status(500).json({ error: "Server error" }); }
 });
