@@ -25,7 +25,7 @@ router.get("/", async (req: Request, res: Response) => {
 // GET /api/projects/:slug — public
 router.get("/:slug", async (req: Request, res: Response) => {
   try {
-    const project = await prisma.project.findFirst({ where: { slug: req.params.slug } });
+    const project = await prisma.project.findFirst({ where: { slug: req.params.slug as string } });
     if (!project) { res.status(404).json({ error: "Not found" }); return; }
     res.json(project);
   } catch {
@@ -52,7 +52,7 @@ router.put("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const data = req.body;
     delete data.id;
-    const project = await prisma.project.update({ where: { id: req.params.id }, data });
+    const project = await prisma.project.update({ where: { id: req.params.id as string }, data });
     res.json(project);
   } catch {
     res.status(500).json({ error: "Server error" });
@@ -62,7 +62,7 @@ router.put("/:id", authMiddleware, async (req: Request, res: Response) => {
 // DELETE /api/projects/:id — admin
 router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
-    await prisma.project.delete({ where: { id: req.params.id } });
+    await prisma.project.delete({ where: { id: req.params.id as string } });
     res.json({ message: "Deleted" });
   } catch {
     res.status(500).json({ error: "Server error" });

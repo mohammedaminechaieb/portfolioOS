@@ -250,20 +250,20 @@ async function main() {
     {
       title: "TuniHack 10.0",
       organizer: "Sponsorship, logistics, CTF challenges",
-      date: new Date("2025-01-01"),
+      date: "2025-01-01T00:00:00.000Z",
       result: "Sponsorship team",
       order: 1,
     },
     {
       title: "Code & Conquer 2nd ed.",
-      date: new Date("2025-04-01"),
+      date: "2025-04-01T00:00:00.000Z",
       result: "Participant",
       order: 2,
     },
     {
       title: "ENSI Programming Contest 4.0",
       organizer: "ENSI Competitive Programming Club & Open Source Software Club",
-      date: new Date("2024-12-01"),
+      date: "2024-12-01T00:00:00.000Z",
       result: "Participant",
       order: 3,
     },
@@ -277,8 +277,8 @@ async function main() {
 
   // ── Certifications ──
   const certs = [
-    { title: "Programming Hero: Python", issuer: "Programming Hero", date: new Date("2024-10-01"), order: 1 },
-    { title: "Ethical Hacking", issuer: "Programming Hub", date: new Date("2024-10-01"), order: 2 },
+    { title: "Programming Hero: Python", issuer: "Programming Hero", date: "2024-10-01T00:00:00.000Z", order: 1 },
+    { title: "Ethical Hacking", issuer: "Programming Hub", date: "2024-10-01T00:00:00.000Z", order: 2 },
   ];
 
   for (const c of certs) {
