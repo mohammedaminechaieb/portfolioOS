@@ -160,7 +160,7 @@ export default function AdminDashboard({ onLogout }: Props) {
                 <label className="text-os-muted text-xs block mb-1 capitalize">{field}</label>
                 <input
                   className={inputCls}
-                  value={(profile as Record<string, string>)[field] || ""}
+                  value={(profile as unknown as Record<string, string>)[field] || ""}
                   onChange={(e) => setProfile({ ...profile, [field]: e.target.value })}
                 />
               </div>
