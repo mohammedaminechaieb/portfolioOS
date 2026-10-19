@@ -7,48 +7,111 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ═══════════════════════════════════════════════════════════════
+// MAPPED TO OLD COLLECTIONS (with data)
+// ═══════════════════════════════════════════════════════════════
+
+// Old: users (1 doc) — username:"admin", password, role:"admin"
+// New admin doc will coexist (different _id)
 model Admin {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
+  email     String   @unique @map("username")
   password  String
-  name      String
+  name      String   @map("role")
   createdAt DateTime @default(now())
+  @@map("users")
 }
 
+// Old: settings (1 doc) — siteName, avatar, tagline, bio, socialLinks{...}, theme{...}
+// New Profile doc (_id:"main") coexists alongside old ObjectId doc
+// Prisma ignores nested socialLinks/theme — they stay for old portfolio
 model Profile {
-  id        String  @id @map("_id")
-  name      String  @default("Mohamed Amine Chaieb")
-  title     String  @default("Full-Stack Developer")
-  subtitle  String  @default("Computer Engineering Student at ENSI")
-  bio       String
-  email     String  @default("m.amine.chaieb@gmail.com")
-  phone     String  @default("+216 29 663 667")
-  location  String  @default("Tunisia")
-  github    String  @default("https://github.com/mohammedaminechaieb")
-  linkedin  String  @default("https://linkedin.com/in/mohammedaminechaieb")
-  portfolio String  @default("")
-  avatarUrl String  @default("")
-  resumeUrl String  @default("")
-  available Boolean @default(true)
+  id        String   @id @map("_id")
+  name      String   @default("Mohamed Amine Chaieb")
+  title     String   @default("Full-Stack Developer")
+  subtitle  String   @default("Computer Engineering Student at ENSI") @map("tagline")
+  bio       String   @default("")
+  email     String   @default("m.amine.chaieb@gmail.com")
+  phone     String   @default("+216 29 663 667")
+  location  String   @default("Tunisia")
+  github    String   @default("https://github.com/mohammedaminechaieb")
+  linkedin  String   @default("https://linkedin.com/in/mohammedaminechaieb")
+  portfolio String   @default("")
+  avatarUrl String   @default("") @map("avatar")
+  resumeUrl String   @default("")
+  available Boolean  @default(true)
   updatedAt DateTime @updatedAt
+  @@map("settings")
 }
 
+// Old: projects (18 docs) — technologies[], image, no slug, no category
 model Project {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
-  slug        String   @unique
+  slug        String?
   description String
   longDesc    String?
-  techStack   String[]
-  category    String
-  imageUrl    String?
+  techStack   String[] @map("technologies")
+  category    String   @default("other")
+  imageUrl    String?  @map("image")
   liveUrl     String?
   githubUrl   String?
   featured    Boolean  @default(false)
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  @@map("projects")
 }
+
+// Old: skills (45 docs) — PERFECT MATCH, no renames needed
+model Skill {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  category String
+  level    Int     @default(70)
+  icon     String?
+  order    Int     @default(0)
+  @@map("skills")
+}
+
+// Old: events (5 docs) — type→organizer, achievement→result, date is BSON Date
+model Competition {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  organizer   String?   @map("type")
+  date        DateTime?
+  result      String?   @map("achievement")
+  description String?
+  order       Int       @default(0)
+  @@map("events")
+}
+
+// Old: certificates (8 docs) — credentialUrl→url, date is BSON Date
+model Certification {
+  id     String    @id @default(auto()) @map("_id") @db.ObjectId
+  title  String
+  issuer String
+  date   DateTime?
+  url    String?   @map("credentialUrl")
+  order  Int       @default(0)
+  @@map("certificates")
+}
+
+// Old: contacts (0 docs) — message→body
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  subject   String?
+  body      String   @map("message")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@map("contacts")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NEW COLLECTIONS (no old equivalent)
+// ═══════════════════════════════════════════════════════════════
 
 model Experience {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -68,15 +131,6 @@ model Experience {
   updatedAt   DateTime @updatedAt
 }
 
-model Skill {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
-  category String
-  level    Int     @default(70)
-  icon     String?
-  order    Int     @default(0)
-}
-
 model Education {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   degree      String
@@ -89,35 +143,6 @@ model Education {
   description String?
   gpa         String?
   order       Int     @default(0)
-}
-
-model Competition {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  organizer   String?
-  date        String
-  result      String?
-  description String?
-  order       Int     @default(0)
-}
-
-model Certification {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  title  String
-  issuer String
-  date   String
-  url    String?
-  order  Int     @default(0)
-}
-
-model Message {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String
-  subject   String?
-  body      String
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
 }
 
 model SiteConfig {

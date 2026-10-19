@@ -104,11 +104,8 @@ async function main() {
   ];
 
   for (const p of projects) {
-    await prisma.project.upsert({
-      where: { slug: p.slug },
-      update: p,
-      create: p,
-    });
+    const existing = await prisma.project.findFirst({ where: { slug: p.slug } });
+    if (!existing) await prisma.project.create({ data: p });
   }
   console.log(`  ✓ ${projects.length} Projects`);
 
@@ -253,20 +250,20 @@ async function main() {
     {
       title: "TuniHack 10.0",
       organizer: "Sponsorship, logistics, CTF challenges",
-      date: "Jan 2025",
+      date: new Date("2025-01-01"),
       result: "Sponsorship team",
       order: 1,
     },
     {
       title: "Code & Conquer 2nd ed.",
-      date: "Apr 2025",
+      date: new Date("2025-04-01"),
       result: "Participant",
       order: 2,
     },
     {
       title: "ENSI Programming Contest 4.0",
       organizer: "ENSI Competitive Programming Club & Open Source Software Club",
-      date: "Dec 2024",
+      date: new Date("2024-12-01"),
       result: "Participant",
       order: 3,
     },
@@ -280,8 +277,8 @@ async function main() {
 
   // ── Certifications ──
   const certs = [
-    { title: "Programming Hero: Python", issuer: "Programming Hero", date: "Oct 2024", order: 1 },
-    { title: "Ethical Hacking", issuer: "Programming Hub", date: "Oct 2024", order: 2 },
+    { title: "Programming Hero: Python", issuer: "Programming Hero", date: new Date("2024-10-01"), order: 1 },
+    { title: "Ethical Hacking", issuer: "Programming Hub", date: new Date("2024-10-01"), order: 2 },
   ];
 
   for (const c of certs) {

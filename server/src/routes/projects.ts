@@ -25,7 +25,7 @@ router.get("/", async (req: Request, res: Response) => {
 // GET /api/projects/:slug — public
 router.get("/:slug", async (req: Request, res: Response) => {
   try {
-    const project = await prisma.project.findUnique({ where: { slug: req.params.slug } });
+    const project = await prisma.project.findFirst({ where: { slug: req.params.slug } });
     if (!project) { res.status(404).json({ error: "Not found" }); return; }
     res.json(project);
   } catch {
