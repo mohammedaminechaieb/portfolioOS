@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface BootSequenceProps {
@@ -26,40 +26,50 @@ export default function BootSequence({ osName, osVersion, onComplete }: BootSequ
   const [lines, setLines] = useState<typeof BOOT_LINES>([]);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<"boot" | "logo" | "done">("boot");
+  const cancelledRef = useRef(false);
 
   const skipBoot = useCallback(() => {
+    cancelledRef.current = true;
     setPhase("done");
     setTimeout(onComplete, 300);
   }, [onComplete]);
 
+  // Use setTimeout chain instead of setInterval to avoid StrictMode race
   useEffect(() => {
     if (phase !== "boot") return;
+    cancelledRef.current = false;
 
-    let idx = 0;
-    const timer = setInterval(() => {
-      if (idx < BOOT_LINES.length) {
-        setLines((prev) => [...prev, BOOT_LINES[idx]]);
-        setProgress(Math.round(((idx + 1) / BOOT_LINES.length) * 100));
-        idx++;
-      } else {
-        clearInterval(timer);
-        setTimeout(() => setPhase("logo"), 400);
+    function addLine(idx: number) {
+      if (cancelledRef.current) return;
+      if (idx >= BOOT_LINES.length) {
+        setTimeout(() => {
+          if (!cancelledRef.current) setPhase("logo");
+        }, 400);
+        return;
       }
-    }, 300);
+      setLines((prev) => [...prev, BOOT_LINES[idx]]);
+      setProgress(Math.round(((idx + 1) / BOOT_LINES.length) * 100));
+      setTimeout(() => addLine(idx + 1), 300);
+    }
 
-    return () => clearInterval(timer);
+    const t = setTimeout(() => addLine(0), 200);
+    return () => {
+      cancelledRef.current = true;
+      clearTimeout(t);
+    };
   }, [phase]);
 
   useEffect(() => {
     if (phase === "logo") {
-      setTimeout(() => {
+      const t = setTimeout(() => {
         setPhase("done");
         setTimeout(onComplete, 500);
       }, 1500);
+      return () => clearTimeout(t);
     }
   }, [phase, onComplete]);
 
-  // Listen for any key or click to skip
+  // Listen for key to skip
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "Enter" || e.key === " ") skipBoot();
@@ -86,7 +96,7 @@ export default function BootSequence({ osName, osVersion, onComplete }: BootSequ
               onClick={skipBoot}
               className="text-xs text-os-muted hover:text-os-accent transition-colors px-3 py-1 border border-os-border/50 rounded"
             >
-              Skip boot →
+              Skip boot &rarr;
             </button>
           </div>
 
@@ -98,13 +108,13 @@ export default function BootSequence({ osName, osVersion, onComplete }: BootSequ
                   {osName}
                 </div>
                 <div className="text-os-muted text-xs mt-1">
-                  v{osVersion} — Portfolio Operating Environment
+                  v{osVersion} &mdash; Portfolio Operating Environment
                 </div>
               </div>
 
               {/* Boot lines */}
               <div className="space-y-1">
-                {lines.map((line, i) => (
+                {lines.filter(Boolean).map((line, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: -10 }}
@@ -114,9 +124,9 @@ export default function BootSequence({ osName, osVersion, onComplete }: BootSequ
                     <span className="text-os-muted w-4 text-right text-xs">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <span className="text-os-text/80">{line.text}</span>
+                    <span className="text-os-text/80">{line?.text ?? ""}</span>
                     <span className="flex-1 border-b border-dotted border-os-border/30 mx-2" />
-                    <span className="text-os-green text-xs font-semibold">[{line.status}]</span>
+                    <span className="text-os-green text-xs font-semibold">[{line?.status ?? "OK"}]</span>
                   </motion.div>
                 ))}
               </div>

@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Admin {
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
   password  String
   name      String
@@ -16,31 +16,31 @@ model Admin {
 }
 
 model Profile {
-  id          String  @id @default("main")
-  name        String  @default("Mohamed Amine Chaieb")
-  title       String  @default("Full-Stack Developer")
-  subtitle    String  @default("Computer Engineering Student at ENSI")
-  bio         String  @db.Text
-  email       String  @default("m.amine.chaieb@gmail.com")
-  phone       String  @default("+216 29 663 667")
-  location    String  @default("Tunisia")
-  github      String  @default("https://github.com/mohammedaminechaieb")
-  linkedin    String  @default("https://linkedin.com/in/mohammedaminechaieb")
-  portfolio   String  @default("")
-  avatarUrl   String  @default("")
-  resumeUrl   String  @default("")
-  available   Boolean @default(true)
-  updatedAt   DateTime @updatedAt
+  id        String  @id @map("_id")
+  name      String  @default("Mohamed Amine Chaieb")
+  title     String  @default("Full-Stack Developer")
+  subtitle  String  @default("Computer Engineering Student at ENSI")
+  bio       String
+  email     String  @default("m.amine.chaieb@gmail.com")
+  phone     String  @default("+216 29 663 667")
+  location  String  @default("Tunisia")
+  github    String  @default("https://github.com/mohammedaminechaieb")
+  linkedin  String  @default("https://linkedin.com/in/mohammedaminechaieb")
+  portfolio String  @default("")
+  avatarUrl String  @default("")
+  resumeUrl String  @default("")
+  available Boolean @default(true)
+  updatedAt DateTime @updatedAt
 }
 
 model Project {
-  id          String   @id @default(cuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   slug        String   @unique
-  description String   @db.Text
-  longDesc    String?  @db.Text
-  techStack   String[] // array of technology names
-  category    String   // "web", "mobile", "ai", "iot", "embedded"
+  description String
+  longDesc    String?
+  techStack   String[]
+  category    String
   imageUrl    String?
   liveUrl     String?
   githubUrl   String?
@@ -51,17 +51,17 @@ model Project {
 }
 
 model Experience {
-  id          String   @id @default(cuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   role        String
   company     String
   companyUrl  String?
   location    String
-  type        String   // "internship", "research", "capstone", "freelance"
+  type        String
   startDate   String
   endDate     String?
   current     Boolean  @default(false)
-  description String   @db.Text
-  highlights  String[] // bullet points
+  description String
+  highlights  String[]
   techStack   String[]
   order       Int      @default(0)
   createdAt   DateTime @default(now())
@@ -69,69 +69,69 @@ model Experience {
 }
 
 model Skill {
-  id       String @id @default(cuid())
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  category String // "language", "frontend", "backend", "database", "devops", "ai", "embedded", "tools"
-  level    Int    @default(70) // 0-100 proficiency
-  icon     String? // icon name or URL
-  order    Int    @default(0)
+  category String
+  level    Int     @default(70)
+  icon     String?
+  order    Int     @default(0)
 }
 
 model Education {
-  id          String   @id @default(cuid())
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
   degree      String
   school      String
   schoolUrl   String?
   location    String
   startDate   String
   endDate     String?
-  current     Boolean  @default(false)
-  description String?  @db.Text
+  current     Boolean @default(false)
+  description String?
   gpa         String?
-  order       Int      @default(0)
+  order       Int     @default(0)
 }
 
 model Competition {
-  id          String  @id @default(cuid())
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   organizer   String?
   date        String
-  result      String? // "2nd place", "participant", etc.
-  description String? @db.Text
+  result      String?
+  description String?
   order       Int     @default(0)
 }
 
 model Certification {
-  id        String  @id @default(cuid())
-  title     String
-  issuer    String
-  date      String
-  url       String?
-  order     Int     @default(0)
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  title  String
+  issuer String
+  date   String
+  url    String?
+  order  Int     @default(0)
 }
 
 model Message {
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   email     String
   subject   String?
-  body      String   @db.Text
+  body      String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 
 model SiteConfig {
-  id              String  @id @default("main")
-  osName          String  @default("AmineOS")
-  osVersion       String  @default("3.0")
-  bootText        String? @db.Text // custom boot sequence lines (JSON array)
-  terminalGreeting String? @db.Text
-  deskWallpaper   String  @default("wood-dark")
-  osWallpaper     String  @default("gradient-teal")
-  accentColor     String  @default("#0ea5e9")
-  enableDesk      Boolean @default(true)
-  enableOs        Boolean @default(true)
-  defaultMode     String  @default("desk") // "desk" or "os"
-  metaTitle       String  @default("Mohamed Amine Chaieb // Portfolio")
-  metaDescription String  @default("Computer Engineering student & Full-Stack Developer")
+  id               String  @id @map("_id")
+  osName           String  @default("AmineOS")
+  osVersion        String  @default("3.0")
+  bootText         String?
+  terminalGreeting String?
+  deskWallpaper    String  @default("wood-dark")
+  osWallpaper      String  @default("gradient-teal")
+  accentColor      String  @default("#0ea5e9")
+  enableDesk       Boolean @default(true)
+  enableOs         Boolean @default(true)
+  defaultMode      String  @default("desk")
+  metaTitle        String  @default("Mohamed Amine Chaieb // Portfolio")
+  metaDescription  String  @default("Computer Engineering student & Full-Stack Developer")
 }

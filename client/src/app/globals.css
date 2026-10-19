@@ -27,7 +27,7 @@
 
 /* ── OS Terminal cursor ── */
 .cursor-blink::after {
-  content: "▌";
+  content: "\25CC";
   animation: blink 1s step-end infinite;
 }
 
@@ -46,26 +46,44 @@
   z-index: 9999;
 }
 
-/* ── Desk wood grain ── */
+/* ══════════════════════════════
+   DESK MODE — Enhanced Textures
+   ══════════════════════════════ */
+
+/* ── Rich wood grain with knots ── */
 .wood-grain {
   background-image:
+    /* subtle knot pattern */
+    radial-gradient(ellipse 60px 40px at 15% 30%, rgba(42,26,16,0.15) 0%, transparent 70%),
+    radial-gradient(ellipse 40px 30px at 75% 60%, rgba(42,26,16,0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 50px 35px at 55% 20%, rgba(42,26,16,0.08) 0%, transparent 70%),
+    /* primary grain lines */
     repeating-linear-gradient(
       87deg,
       transparent,
-      transparent 20px,
-      rgba(0,0,0,0.03) 20px,
-      rgba(0,0,0,0.03) 21px
+      transparent 18px,
+      rgba(0,0,0,0.04) 18px,
+      rgba(0,0,0,0.04) 19px
     ),
+    /* secondary grain */
     repeating-linear-gradient(
-      92deg,
+      91deg,
       transparent,
-      transparent 40px,
-      rgba(139,90,43,0.05) 40px,
-      rgba(139,90,43,0.05) 41px
+      transparent 35px,
+      rgba(139,90,43,0.06) 35px,
+      rgba(139,90,43,0.06) 36px
+    ),
+    /* micro grain for realism */
+    repeating-linear-gradient(
+      89deg,
+      transparent,
+      transparent 6px,
+      rgba(0,0,0,0.015) 6px,
+      rgba(0,0,0,0.015) 7px
     );
 }
 
-/* ── Desk paper texture ── */
+/* ── Desk paper texture with ruled lines ── */
 .paper-texture {
   background-image:
     radial-gradient(ellipse at 20% 50%, rgba(0,0,0,0.02) 0%, transparent 60%),
@@ -76,6 +94,99 @@
       rgba(180,180,210,0.15) 28px,
       rgba(180,180,210,0.15) 29px
     );
+}
+
+/* ── Aged paper effect ── */
+.paper-aged {
+  background:
+    radial-gradient(ellipse at 10% 10%, rgba(180,150,100,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 90%, rgba(160,130,80,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(245,240,230,1) 0%, rgba(235,225,210,1) 100%);
+}
+
+/* ── Leather stitching border ── */
+.leather-stitch {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 8px,
+      rgba(180,140,80,0.3) 8px,
+      rgba(180,140,80,0.3) 10px,
+      transparent 10px,
+      transparent 14px
+    );
+}
+
+/* ── Coffee steam animation ── */
+@keyframes steam {
+  0% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(-14px) scale(1.15); opacity: 0.3; }
+  100% { transform: translateY(-28px) scale(1.3); opacity: 0; }
+}
+.steam-particle {
+  animation: steam 2.5s ease-out infinite;
+}
+
+/* ── Desk lamp glow ── */
+@keyframes lampPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.8; }
+}
+.lamp-glow {
+  animation: lampPulse 4s ease-in-out infinite;
+}
+
+/* ── Page flip keyframes ── */
+@keyframes pageFlipIn {
+  0% { transform: perspective(800px) rotateY(-90deg) scale(0.8); opacity: 0; }
+  60% { transform: perspective(800px) rotateY(10deg) scale(1.02); opacity: 1; }
+  100% { transform: perspective(800px) rotateY(0deg) scale(1); opacity: 1; }
+}
+.page-flip-in {
+  animation: pageFlipIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: left center;
+}
+
+/* ── Paper drop shadow for documents on desk ── */
+.paper-on-desk {
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.1),
+    0 4px 8px rgba(0,0,0,0.1),
+    0 12px 24px rgba(0,0,0,0.15),
+    2px 2px 0 rgba(235,225,210,1),
+    4px 4px 0 rgba(225,215,200,1);
+}
+
+/* ── Folder tab shape ── */
+.folder-tab-shape {
+  clip-path: polygon(0% 0%, 35% 0%, 42% 100%, 0% 100%);
+}
+
+/* ── Monitor screen glow ── */
+@keyframes screenGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(14,165,233,0.15), inset 0 0 30px rgba(14,165,233,0.05); }
+  50% { box-shadow: 0 0 25px rgba(14,165,233,0.25), inset 0 0 40px rgba(14,165,233,0.1); }
+}
+.screen-glow {
+  animation: screenGlow 3s ease-in-out infinite;
+}
+
+/* ── Shelf shadow ── */
+.shelf-shadow {
+  box-shadow:
+    0 8px 16px rgba(0,0,0,0.3),
+    0 2px 4px rgba(0,0,0,0.2),
+    inset 0 -2px 4px rgba(0,0,0,0.15);
+}
+
+/* ── Shelf item hover ── */
+.shelf-item {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s;
+}
+.shelf-item:hover {
+  transform: translateY(-6px) scale(1.05);
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,0.3));
 }
 
 /* ── Window drag handle ── */
@@ -114,4 +225,210 @@
 /* ── Smooth transitions ── */
 .scene-transition {
   transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+}
+
+/* ── Sticky note tilt ── */
+.sticky-note {
+  box-shadow: 2px 3px 8px rgba(0,0,0,0.15);
+}
+
+/* ── Pen holder ── */
+.pen-holder {
+  background: linear-gradient(135deg, #2a1a10 0%, #3d2b1f 50%, #2a1a10 100%);
+  box-shadow: inset 0 -4px 8px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* ══════════════════════════════════
+   ENHANCED DESK MODE — New Effects
+   ══════════════════════════════════ */
+
+/* ── 3D Shelf with brackets ── */
+.shelf-3d {
+  box-shadow:
+    0 4px 6px rgba(0,0,0,0.25),
+    0 8px 16px rgba(0,0,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    inset 0 -2px 4px rgba(0,0,0,0.2);
+}
+
+.shelf-bracket {
+  width: 8px;
+  height: 20px;
+  background: linear-gradient(180deg, #5a3a1a, #3d2510);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
+  box-shadow: 1px 2px 3px rgba(0,0,0,0.3);
+}
+
+/* ── Book on shelf 3D ── */
+.book-on-shelf {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+}
+.book-on-shelf:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* ── Leather desk mat ── */
+.leather-mat {
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.2),
+    0 8px 24px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.leather-grain {
+  background-image:
+    radial-gradient(ellipse 2px 3px at 30% 40%, rgba(0,0,0,0.04) 0%, transparent 100%),
+    radial-gradient(ellipse 3px 2px at 60% 70%, rgba(0,0,0,0.03) 0%, transparent 100%),
+    radial-gradient(ellipse 2px 2px at 80% 20%, rgba(0,0,0,0.02) 0%, transparent 100%);
+}
+
+/* ── Stitch border (dashed) ── */
+.stitch-border {
+  border: 1px dashed rgba(180,140,80,0.2);
+}
+
+/* ── Brass nameplate ── */
+.nameplate {
+  background: linear-gradient(135deg, #c9a84c, #b8943a, #d4b65c, #a8832e);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+}
+
+@keyframes nameplateShine {
+  0% { transform: translateX(-100%) rotate(12deg); }
+  100% { transform: translateX(200%) rotate(12deg); }
+}
+.nameplate-shine {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.15) 45%,
+    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0.15) 55%,
+    transparent 100%
+  );
+  animation: nameplateShine 4s ease-in-out infinite;
+}
+
+/* ── Sticky note 3D ── */
+.sticky-note-3d {
+  box-shadow:
+    1px 2px 4px rgba(0,0,0,0.15),
+    2px 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.sticky-note-3d:hover {
+  box-shadow:
+    2px 4px 8px rgba(0,0,0,0.2),
+    4px 8px 16px rgba(0,0,0,0.15);
+}
+
+/* ── Pen cup 3D ── */
+.pen-cup-3d {
+  background: linear-gradient(135deg, #2a1a10 0%, #3d2b1f 50%, #2a1a10 100%);
+  box-shadow:
+    inset 0 -4px 8px rgba(0,0,0,0.3),
+    0 2px 6px rgba(0,0,0,0.2),
+    inset 2px 0 4px rgba(0,0,0,0.15);
+}
+
+/* ── Monitor body ── */
+.monitor-body {
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.4),
+    0 1px 3px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* ── CRT effect on monitor ── */
+.crt-monitor {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.03) 0px,
+    rgba(0,0,0,0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* ── Keyboard 3D ── */
+.keyboard-3d {
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.3),
+    0 4px 8px rgba(0,0,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.key-cap {
+  transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* ── Lamp light cone ── */
+.lamp-cone {
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 0%,
+    rgba(255,200,100,0.06) 0%,
+    rgba(255,200,100,0.02) 40%,
+    transparent 70%
+  );
+}
+
+.lamp-light-cone {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 60px;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255,200,100,0.08) 0%,
+    rgba(255,200,100,0.03) 50%,
+    transparent 80%
+  );
+  pointer-events: none;
+}
+
+/* ── Frame shadow for wall items ── */
+.frame-shadow {
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.4),
+    2px 2px 0 rgba(0,0,0,0.1);
+}
+
+.clock-shadow {
+  box-shadow:
+    0 3px 8px rgba(0,0,0,0.3),
+    inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* ── Page corner fold ── */
+.page-corner {
+  background: linear-gradient(
+    135deg,
+    transparent 50%,
+    rgba(0,0,0,0.03) 50%,
+    rgba(0,0,0,0.06) 100%
+  );
+}
+
+/* ── Paper scroll for document viewer ── */
+.custom-scroll-paper::-webkit-scrollbar { width: 4px; }
+.custom-scroll-paper::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll-paper::-webkit-scrollbar-thumb {
+  background: rgba(100,80,50,0.2);
+  border-radius: 2px;
+}
+.custom-scroll-paper::-webkit-scrollbar-thumb:hover {
+  background: rgba(100,80,50,0.35);
+}
+
+/* ── Desk shadow mat ── */
+.shadow-desk-mat {
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.2),
+    0 12px 32px rgba(0,0,0,0.25);
 }

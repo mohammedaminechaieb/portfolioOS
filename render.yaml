@@ -1,0 +1,30 @@
+services:
+  # ── Backend API ──
+  - type: web
+    name: amine-portfolio-api
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    envVars:
+      - key: DATABASE_URL
+        sync: false  # Set manually — your MongoDB connection string
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false  # Set to your frontend URL
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+
+  # ── Frontend ──
+  - type: web
+    name: amine-portfolio
+    runtime: docker
+    dockerfilePath: ./client/Dockerfile
+    dockerContext: ./client
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false  # Set to your backend URL, e.g. https://amine-portfolio-api.onrender.com
+      - key: PORT
+        value: 3000
