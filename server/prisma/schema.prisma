@@ -52,13 +52,13 @@ model Project {
   description String
   longDesc    String?
   techStack   String[] @map("technologies")
-  category    String   @default("other")
+  category    String?  @default("other")
   imageUrl    String?  @map("image")
   liveUrl     String?
   githubUrl   String?
   featured    Boolean  @default(false)
   order       Int      @default(0)
-  createdAt   DateTime @default(now())
+  createdAt   DateTime? @default(now())
   updatedAt   DateTime @updatedAt
   @@map("projects")
 }
