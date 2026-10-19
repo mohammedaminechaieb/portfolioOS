@@ -17,7 +17,8 @@ router.get("/", async (req: Request, res: Response) => {
       orderBy: { order: "asc" },
     });
     res.json(projects);
-  } catch {
+    } catch (err) {
+    console.error("Projects error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
