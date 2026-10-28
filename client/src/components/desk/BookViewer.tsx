@@ -11,14 +11,21 @@ import { motion, animate, useMotionValue, useTransform } from "framer-motion";
    - real 3D leaves that turn around the spine
    ═══════════════════════════════════════════════ */
 
+export interface BookCtx {
+  goToId: (id: string) => void;
+}
+
 export interface BookEntry {
   id: string;
-  /** Label printed on the bookmark and in the contents */
-  tab: string;
+  /** Bookmark label. Leave empty for a continuation page: it gets no
+   *  bookmark and belongs to the previous entry that has one. */
+  tab?: string;
+  /** Label in the table of contents (defaults to tab) */
+  label?: string;
   /** Left page of the spread */
-  left: ReactNode;
+  left: ReactNode | ((ctx: BookCtx) => ReactNode);
   /** Right page of the spread */
-  right: ReactNode;
+  right: ReactNode | ((ctx: BookCtx) => ReactNode);
 }
 
 interface BookViewerProps {
@@ -43,7 +50,7 @@ const TAB_COLORS = [
 
 const PAGE_W = 300;
 const PAGE_H = 430;
-const TAB_AREA = 96; // space for bookmarks to stick out of the right edge
+const TAB_AREA = 132; // space for bookmarks to stick out of the right edge
 const FLIP_MS = 650;
 
 function PageShell({
@@ -240,14 +247,64 @@ export default function BookViewer({
     return 0;
   };
 
-  const tabs = entries.map((e, i) => ({
-    ...e,
-    color: TAB_COLORS[i % TAB_COLORS.length],
-  }));
+  const goToId = (id: string) => {
+    const i = entries.findIndex((e) => e.id === id);
+    if (i >= 0) goTo(i + 1);
+  };
+  const ctx: BookCtx = { goToId };
+  const rend = (x: BookEntry["left"]) =>
+    typeof x === "function" ? x(ctx) : x;
 
-  const tabH = Math.max(22, Math.min(40, (PAGE_H - 30) / Math.max(n, 1)));
+  // bookmark groups: an entry with a tab starts a group, entries without
+  // a tab continue the previous group
+  let groupNo = -1;
+  const tabs = entries.map((e, i) => {
+    if (e.tab) groupNo++;
+    const g = Math.max(groupNo, 0);
+    return {
+      ...e,
+      group: g,
+      isStart: !!e.tab,
+      color: TAB_COLORS[g % TAB_COLORS.length],
+      text: e.label || e.tab || "",
+      index: i,
+    };
+  });
+  const bookmarks = tabs.filter((t) => t.isStart);
+  const activeGroup = p >= 1 ? tabs[p - 1]?.group : -1;
+  const tabH = Math.min(40, (PAGE_H - 24) / Math.max(bookmarks.length, 1));
 
-  /* Contents page (static, under all leaves on the left) */
+  /* Contents: left page first, overflow continues on the facing page */
+  const LEFT_ROWS = 13;
+  const RIGHT_ROWS = 14;
+  const row = (t: (typeof tabs)[number], i: number) => (
+    <li key={t.id}>
+      <button
+        onClick={() => goTo(i + 1)}
+        className={`group w-full flex items-baseline gap-2 text-left font-mono text-desk-woodDark/80 hover:text-desk-woodDark px-1 rounded hover:bg-desk-woodDark/5 transition-colors ${
+          t.isStart ? "text-[11.5px] py-[3px]" : "text-[10.5px] py-[2px] pl-5"
+        }`}
+      >
+        {t.isStart ? (
+          <span
+            className="inline-block w-2 h-2 rounded-sm shrink-0 translate-y-[1px]"
+            style={{ background: t.color }}
+          />
+        ) : (
+          <span className="text-desk-woodDark/30 shrink-0">└</span>
+        )}
+        <span className="truncate">{t.text}</span>
+        <span className="flex-1 border-b border-dotted border-desk-woodDark/25 translate-y-[-3px] min-w-[8px]" />
+        <span className="text-desk-woodDark/50 group-hover:text-desk-woodDark">
+          {i * 2 + 2}
+        </span>
+      </button>
+    </li>
+  );
+  const needsTwo = n > LEFT_ROWS;
+  const leftRows = tabs.slice(0, LEFT_ROWS);
+  const rightRows = tabs.slice(LEFT_ROWS, LEFT_ROWS + RIGHT_ROWS);
+
   const contents = (
     <div>
       <div className="text-desk-woodDark font-bold text-lg font-mono">
@@ -256,27 +313,18 @@ export default function BookViewer({
       <div className="text-desk-woodDark/50 text-[10px] font-mono tracking-widest uppercase mb-1">
         Table of contents
       </div>
-      <div className="w-full h-px bg-desk-woodDark/15 mb-3" />
-      <ul className="space-y-0.5">
-        {tabs.map((t, i) => (
-          <li key={t.id}>
-            <button
-              onClick={() => goTo(i + 1)}
-              className="group w-full flex items-baseline gap-2 text-left text-[12px] font-mono text-desk-woodDark/80 hover:text-desk-woodDark py-1 px-1 rounded hover:bg-desk-woodDark/5 transition-colors"
-            >
-              <span
-                className="inline-block w-2 h-2 rounded-sm shrink-0 translate-y-[1px]"
-                style={{ background: t.color }}
-              />
-              <span className="truncate">{t.tab}</span>
-              <span className="flex-1 border-b border-dotted border-desk-woodDark/25 translate-y-[-3px] min-w-[8px]" />
-              <span className="text-desk-woodDark/50 group-hover:text-desk-woodDark">
-                {i * 2 + 2}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className="w-full h-px bg-desk-woodDark/15 mb-2" />
+      <ul>{leftRows.map((t, i) => row(t, i))}</ul>
+    </div>
+  );
+
+  const contentsCont = (
+    <div>
+      <div className="text-desk-woodDark/50 text-[10px] font-mono tracking-widest uppercase mb-1">
+        Table of contents (continued)
+      </div>
+      <div className="w-full h-px bg-desk-woodDark/15 mb-2" />
+      <ul>{rightRows.map((t, i) => row(t, i + LEFT_ROWS))}</ul>
     </div>
   );
 
@@ -316,8 +364,8 @@ export default function BookViewer({
   // leaf j: front = entry j-1 right page (title page for j=0)
   //         back  = entry j left page (end page for j=n)
   const leaves = Array.from({ length: n + 1 }, (_, j) => ({
-    front: j === 0 ? titlePage : tabs[j - 1].right,
-    back: j === n ? endPage : tabs[j].left,
+    front: j === 0 ? (needsTwo ? contentsCont : titlePage) : rend(tabs[j - 1].right),
+    back: j === n ? endPage : rend(tabs[j].left),
   }));
 
   const heightPx = PAGE_H;
@@ -418,16 +466,16 @@ export default function BookViewer({
         className="absolute top-3 z-[2000]"
         style={{ left: TAB_AREA + PAGE_W * 2 + 6, height: heightPx }}
       >
-        {tabs.map((t, i) => {
-          const active = p === i + 1;
+        {bookmarks.map((t, bi) => {
+          const active = activeGroup === t.group;
           return (
             <motion.button
               key={t.id}
-              onClick={() => goTo(i + 1)}
+              onClick={() => goTo(t.index + 1)}
               title={t.tab}
               className="absolute left-0 text-left shadow-lg overflow-hidden whitespace-nowrap"
               style={{
-                top: 6 + i * tabH,
+                top: 6 + bi * tabH,
                 height: tabH - 3,
                 width: TAB_AREA - 4,
                 background: t.color,

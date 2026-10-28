@@ -500,26 +500,13 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
     return () => window.removeEventListener("mousemove", handleMove);
   }, [mouseX, mouseY]);
 
-  // Build shelf items from portfolio data
-  const shelfItems: ShelfItem[] = [
-    {
-      id: "about",
-      type: "folder",
-      label: "About Me",
-      icon: "📁",
-      color: "#c4935a",
-      secondaryColor: "#a67b48",
-      content: `${profile.name}\n${profile.title}\n${profile.subtitle}\n\n${profile.bio}\n\n✉  ${profile.email}\n☎  ${profile.phone}\n📍 ${profile.location}\n\nGitHub: ${profile.github}\nLinkedIn: ${profile.linkedin}`,
-    },
-    {
-      id: "projects",
-      type: "book",
-      label: "Projects",
-      icon: "📖",
-      color: "#6b3a2a",
-      entries: projects.map((p) => ({
+  // ── Projects book: hide unfinished ones, fold the Android apps into one suite ──
+  const UNFINISHED = /^(smartnest|aria\b|ashen)/i;
+  const ANDROID = /^(haptikit|nightdeck|statusbar|soundskin|lockforge|auralauncher)/i;
+  const mkProject = (p: (typeof projects)[number], withTab: boolean): BookEntry => ({
         id: p.id,
-        tab: p.title,
+        tab: withTab ? p.title : undefined,
+        label: p.title,
         left: (
           <div>
             <div className="text-[9px] font-mono uppercase tracking-widest text-desk-woodDark/40 mb-1">
@@ -579,7 +566,94 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
             </div>
           </div>
         ),
-      })),
+  });
+  const bookProjects: BookEntry[] = (() => {
+    const done = projects.filter((p) => !UNFINISHED.test(p.title.trim()));
+    const apps = done.filter((p) => ANDROID.test(p.title.trim()));
+    const out: BookEntry[] = [];
+    let suiteAdded = false;
+    done.forEach((p) => {
+      if (!ANDROID.test(p.title.trim())) {
+        out.push(mkProject(p, true));
+      } else if (!suiteAdded) {
+        suiteAdded = true;
+        out.push({
+          id: "android-suite",
+          tab: "Android Suite",
+          label: "Android Suite",
+          left: (
+            <div>
+              <div className="text-[9px] font-mono uppercase tracking-widest text-desk-woodDark/40 mb-1">
+                Mobile · system-level Android
+              </div>
+              <div className="text-desk-woodDark font-bold text-lg font-mono leading-tight mb-2">
+                Android Suite
+              </div>
+              <div className="w-12 h-0.5 bg-desk-brass/60 rounded mb-3" />
+              <p className="text-desk-woodDark/80 text-[12.5px] font-mono leading-relaxed">
+                A family of system-level Android apps bundled around a custom
+                launcher (AuraLauncher). Core logic is done; polishing and
+                testing are in progress.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {["Kotlin", "Flutter", "Jetpack Compose"].map((t) => (
+                  <span
+                    key={t}
+                    className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-desk-woodDark/10 text-desk-woodDark/80"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ),
+          right: ({ goToId }) => (
+            <div>
+              <div className="text-[9px] font-mono uppercase tracking-widest text-desk-woodDark/40 mb-2">
+                Inside the suite (tap to open)
+              </div>
+              <ul className="space-y-1.5">
+                {apps.map((a) => (
+                  <li key={a.id}>
+                    <button
+                      onClick={() => goToId(a.id)}
+                      className="w-full text-left text-[12px] font-mono text-desk-woodDark/85 hover:text-desk-woodDark px-2 py-1.5 rounded bg-desk-woodDark/5 hover:bg-desk-woodDark/10 transition-colors"
+                    >
+                      <span className="font-bold">{a.title}</span>
+                      <span className="block text-[10px] text-desk-woodDark/55 truncate">
+                        {a.description}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ),
+        });
+        apps.forEach((a) => out.push(mkProject(a, false)));
+      }
+    });
+    return out;
+  })();
+
+  // Build shelf items from portfolio data
+  const shelfItems: ShelfItem[] = [
+    {
+      id: "about",
+      type: "folder",
+      label: "About Me",
+      icon: "📁",
+      color: "#c4935a",
+      secondaryColor: "#a67b48",
+      content: `${profile.name}\n${profile.title}\n${profile.subtitle}\n\n${profile.bio}\n\n✉  ${profile.email}\n☎  ${profile.phone}\n📍 ${profile.location}\n\nGitHub: ${profile.github}\nLinkedIn: ${profile.linkedin}`,
+    },
+    {
+      id: "projects",
+      type: "book",
+      label: "Projects",
+      icon: "📖",
+      color: "#6b3a2a",
+      entries: bookProjects,
       content:
         projects.length > 0
           ? projects
