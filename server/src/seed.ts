@@ -99,6 +99,7 @@ async function main() {
 const PROJECTS: any[] = [
   {
     "title": "GOB — Multilingual Voice Assistant",
+    "_alt": [{ "title": "GOB — AI Multi-Agent Voice Assistant" }],
     "slug": "gob-voice-assistant",
     "description": "A multilingual (FR/EN/AR) AI voice agent that turns spoken commands into real actions (emails, reminders, smart-home control via an ESP32 robot) through an MQTT + n8n action pipeline.",
     "longDesc": "Co-built in a team of 3 as a capstone project at ENSI. Architecture: React/Capacitor mobile app → FastAPI backend → faster-whisper STT → 3-level intent classifier (rules → MiniLM embeddings → TF-IDF+LR) → Mistral-7B via OpenRouter for dialogue → Action Builder + state machine + HMAC-SHA256 signing → n8n workflows → MQTT → ESP32 PlatformIO firmware. Tested with pytest: 20 end-to-end scenarios, 87% coverage on critical backend modules, conversation latency about 3.8 s (team result). Also integrated Piper/Wyoming TTS and Picovoice wake word.",
@@ -123,6 +124,7 @@ const PROJECTS: any[] = [
   },
   {
     "title": "Avatar-ID — ID Card Detection App",
+    "_alt": [{ "title": "ID Detection & Auto-Capture" }],
     "slug": "avatar-id",
     "description": "A Flutter mobile app that detects a Tunisian ID card in the live camera feed and captures both sides automatically using OpenCV computer vision.",
     "longDesc": "Built in 6 weeks during an internship at Codingaholic. Uses adaptive Canny edge detection, CLAHE histogram equalization, contour/polygon scoring, perspective warp, Laplacian blur check and glare detection. Runs at 92 fps front/back classification on real samples, capture in about 2 s. Clean Architecture with opencv_dart for Dart FFI bindings.",
@@ -139,6 +141,7 @@ const PROJECTS: any[] = [
   },
   {
     "title": "Verbal Aggression Detection",
+    "_alt": [{ "title": "Verbal Aggression Detection in Smart Cities" }],
     "slug": "verbal-aggression-detection",
     "description": "An end-to-end architecture for detecting verbal aggression in smart cities: ESP32 microphone → FastAPI → CNN, LSTM and CRNN acoustic models → speech-to-text → language analysis → fusion layer.",
     "techStack": [
@@ -156,6 +159,7 @@ const PROJECTS: any[] = [
   },
   {
     "title": "The System — Personal Habit & Wellness Tracker",
+    "_alt": [{ "title": "The System" }],
     "slug": "the-system",
     "description": "Full habit, exercise and sleep tracker with martial arts training guides (boxing, Tai Chi), a shared log, a dashboard, and a gamified soft-lock screen unlocked through daily tasks. Includes an AI dashboard powered by the Gemini API for personalized insights.",
     "techStack": [
@@ -226,6 +230,7 @@ const PROJECTS: any[] = [
   },
   {
     "title": "AESAT Association Website",
+    "_alt": [{ "title": "AESAT Website" }],
     "slug": "aesat-website",
     "description": "A dynamic landing page with member management, event pages and Angular authentication, built in a team for the AESAT student association.",
     "techStack": [
@@ -240,6 +245,7 @@ const PROJECTS: any[] = [
   },
   {
     "title": "Task Tracker",
+    "_alt": [{ "title": "Task Tracker App" }],
     "slug": "task-tracker",
     "description": "Figma-designed landing page with Angular authentication and a React dashboard for task management, showcasing cross-framework development and UI design.",
     "techStack": [

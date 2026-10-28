@@ -25,22 +25,25 @@ const FILL = ["githubUrl", "liveUrl", "image", "longDesc", "slug", "category", "
 const isEmpty = (v) => v === undefined || v === null || v === "" || (Array.isArray(v) && v.length === 0);
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
 
-// Known near-duplicates:  keep = the document that stays, drop = the ones removed
-const KNOWN = {
+// Families of near-duplicates. Every document whose title matches `family` is one project:
+// the best one stays (the one whose title matches `prefer` if there is one, otherwise the
+// one with the most filled-in fields) and the others are deleted after their missing
+// fields have been copied over. Titles do NOT have to be identical.
+const FAMILIES = {
   projects: [
-    { keep: /^GOB — Multilingual Voice Assistant$/, drop: [/^GOB — AI Multi-Agent Voice Assistant$/] },
-    { keep: /^Avatar-ID — ID Card Detection App$/, drop: [/^ID Detection & Auto-Capture$/] },
-    { keep: /^Verbal Aggression Detection$/, drop: [/^Verbal Aggression Detection in Smart Cities$/] },
-    { keep: /^AESAT Association Website$/, drop: [/^AESAT Website$/] },
-    { keep: /^Task Tracker$/, drop: [/^Task Tracker App$/] },
-    { keep: /^The System — Personal Habit & Wellness Tracker$/, drop: [/^The System$/] },
+    { family: /^gob\b/i, prefer: /^GOB — Multilingual Voice Assistant$/ },
+    { family: /^(avatar-?id|id (card )?detection)/i, prefer: /^Avatar-ID — ID Card Detection App$/ },
+    { family: /^verbal aggression/i, prefer: /^Verbal Aggression Detection$/ },
+    { family: /^aesat/i, prefer: /^AESAT Association Website$/ },
+    { family: /^task ?tracker/i, prefer: /^Task Tracker$/ },
+    { family: /^the system\b/i, prefer: /^The System — Personal Habit & Wellness Tracker$/ },
   ],
   certificates: [
-    { keep: /^Python Programming$/, drop: [/^Programming Hero: Python$/] },
+    { family: /^(python programming|programming hero)/i, prefer: /^Python Programming$/ },
   ],
   events: [
-    { keep: /^Code & Conquer — 2nd Edition$/, drop: [/^Code & Conquer 2nd ed\.$/] },
-    { keep: /^ENSI Programming Contest 4\.0 \(EPC\)$/, drop: [/^ENSI Programming Contest 4\.0$/] },
+    { family: /^code ?& ?conquer/i, prefer: /^Code & Conquer — 2nd Edition$/ },
+    { family: /^ensi programming contest/i, prefer: /^ENSI Programming Contest 4\.0 \(EPC\)$/ },
   ],
 };
 // Natural key used to detect exact duplicates
@@ -65,18 +68,22 @@ for (const coll of Object.keys(KEYS)) {
   const docs = db.getCollection(coll).find().toArray();
   const titleField = TITLE_FIELD[coll] || "title";
 
-  // 1) known near-duplicates
-  for (const g of KNOWN[coll] || []) {
-    const keep = docs.find((d) => g.keep.test(d[titleField] || ""));
-    if (!keep) continue;
-    for (const rx of g.drop) {
-      for (const dup of docs.filter((d) => rx.test(d[titleField] || ""))) {
-        if (String(dup._id) === String(keep._id) || planned.has(String(dup._id))) continue;
-        const fill = {};
-        for (const f of FILL) if (isEmpty(keep[f]) && !isEmpty(dup[f])) fill[f] = dup[f];
-        plan.push({ coll, keep, drop: dup, fill, why: "known duplicate" });
-        planned.add(String(dup._id));
-      }
+  // 1) families of near-duplicates
+  for (const g of FAMILIES[coll] || []) {
+    const members = docs.filter((d) => g.family.test(String(d[titleField] || "").trim()));
+    if (members.length < 2) continue;
+    members.sort((x, y) => {
+      const px = g.prefer.test(x[titleField] || "") ? 1 : 0;
+      const py = g.prefer.test(y[titleField] || "") ? 1 : 0;
+      return py - px || richness(y) - richness(x);
+    });
+    const keep = members[0];
+    for (const dup of members.slice(1)) {
+      if (planned.has(String(dup._id))) continue;
+      const fill = {};
+      for (const f of FILL) if (isEmpty(keep[f]) && !isEmpty(dup[f])) fill[f] = dup[f];
+      plan.push({ coll, keep, drop: dup, fill, why: "near-duplicate" });
+      planned.add(String(dup._id));
     }
   }
 
@@ -111,6 +118,24 @@ plan.forEach((p) => {
 const leftovers = ["Admin", "Certification", "Competition", "Message", "Project", "Skill", "achievements"]
   .filter((c) => db.getCollectionNames().includes(c) && db.getCollection(c).countDocuments() === 0);
 if (leftovers.length) print("\nEmpty leftover collections: " + leftovers.join(", ") + (DROP_EMPTY_LEFTOVERS ? "  → will be dropped" : "  (set DROP_EMPTY_LEFTOVERS = true to drop them)"));
+
+// Report (never deletes): remaining projects that still look alike
+{
+  const left = db.getCollection("projects").find().toArray().filter((d) => !planned.has(String(d._id)));
+  const tok = (t) => new Set(String(t).toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2));
+  const sims = [];
+  for (let i = 0; i < left.length; i++)
+    for (let j = i + 1; j < left.length; j++) {
+      const a = tok(left[i].title), b = tok(left[j].title);
+      const inter = [...a].filter((w) => b.has(w)).length;
+      const uni = new Set([...a, ...b]).size || 1;
+      if (inter / uni >= 0.5) sims.push([left[i], left[j]]);
+    }
+  if (sims.length) {
+    print("\nThese remaining projects look similar (NOT deleted, check them by hand):");
+    sims.forEach(([x, y]) => print("   " + x.title + "   <->   " + y.title));
+  }
+}
 
 print("\nSummary: " + plan.length + " document(s) to delete.");
 

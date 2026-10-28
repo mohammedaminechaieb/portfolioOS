@@ -10,6 +10,19 @@ import { useState } from "react";
  * It sits on a light chip so dark logos (Next.js, Vercel, Git...) stay visible on the
  * dark OS theme as well as on the paper of the desk.
  */
+/** Default icon per skill name, used when the database has no `icon` for the skill. */
+const DEFAULT_ICONS: Record<string, string> = {
+  python: "python", javascript: "javascript", "c/c++": "cplusplus", c: "cplusplus", dart: "dart",
+  sql: "mysql", typescript: "typescript", kotlin: "kotlin", react: "react", "html/css": "html5",
+  flutter: "flutter", "tailwind css": "tailwindcss", "next.js": "nextjs", angular: "angular",
+  "node.js/express": "nodejs", fastapi: "fastapi", "rest apis": "🔗", "jwt auth": "🔐",
+  mongodb: "mongodb", postgresql: "postgresql", sqlite: "sqlite", git: "git", docker: "docker",
+  render: "☁️", vercel: "vercel", opencv: "opencv", "scikit-learn": "scikitlearn", pytorch: "pytorch",
+  "cnn/lstm": "🧠", "faster-whisper": "🎙️", "llm apis": "🤖", n8n: "🔁", esp32: "📟", mqtt: "📡",
+  platformio: "🔩", figma: "figma", postman: "postman", canva: "canva", photoshop: "photoshop",
+  illustrator: "illustrator",
+};
+
 export default function SkillIcon({
   icon,
   name,
@@ -22,6 +35,7 @@ export default function SkillIcon({
   className?: string;
 }) {
   const [broken, setBroken] = useState(false);
+  icon = icon || DEFAULT_ICONS[name.trim().toLowerCase()] || "";
   const isSlug = !!icon && /^[a-z0-9]+$/.test(icon);
   const box = {
     width: size,
