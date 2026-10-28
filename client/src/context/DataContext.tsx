@@ -66,6 +66,8 @@ const FALLBACK: PortfolioData = {
   ],
   competitions: [],
   certifications: [],
+  clubs: [],
+  designs: [],
   config: {
     osName: "AmineOS",
     osVersion: "3.0",

@@ -82,6 +82,7 @@ model Competition {
   date        DateTime?
   result      String?   @map("achievement")
   description String?
+  image       String?
   order       Int       @default(0)
   @@map("events")
 }
@@ -92,8 +93,10 @@ model Certification {
   title  String
   issuer String
   date   DateTime?
-  url    String?   @map("credentialUrl")
-  order  Int       @default(0)
+  url      String?   @map("credentialUrl")
+  image    String?
+  category String?
+  order    Int       @default(0)
   @@map("certificates")
 }
 
@@ -159,4 +162,33 @@ model SiteConfig {
   defaultMode      String  @default("desk")
   metaTitle        String  @default("Mohamed Amine Chaieb // Portfolio")
   metaDescription  String  @default("Computer Engineering student & Full-Stack Developer")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// OLD COLLECTIONS THE APP DID NOT READ BEFORE
+// ═══════════════════════════════════════════════════════════════
+
+// Old: clubs (5 docs)
+model Club {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  role         String?
+  description  String?
+  period       String?
+  image        String?
+  achievements String[]
+  order        Int      @default(0)
+  @@map("clubs")
+}
+
+// Old: designs (13 docs) — graphic design work
+model Design {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  category    String?
+  image       String?
+  tools       String[]
+  order       Int      @default(0)
+  @@map("designs")
 }

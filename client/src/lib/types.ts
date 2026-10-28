@@ -76,6 +76,7 @@ export interface Competition {
   date: string;
   result?: string;
   description?: string;
+  image?: string;
 }
 
 export interface Certification {
@@ -84,6 +85,29 @@ export interface Certification {
   issuer: string;
   date: string;
   url?: string;
+  image?: string;
+  category?: string;
+}
+
+export interface Club {
+  id: string;
+  name: string;
+  role?: string;
+  description?: string;
+  period?: string;
+  image?: string;
+  achievements: string[];
+  order: number;
+}
+
+export interface Design {
+  id: string;
+  title: string;
+  description?: string;
+  category?: string;
+  image?: string;
+  tools: string[];
+  order: number;
 }
 
 export interface Message {
@@ -117,6 +141,8 @@ export interface PortfolioData {
   education: Education[];
   competitions: Competition[];
   certifications: Certification[];
+  clubs: Club[];
+  designs: Design[];
   config: SiteConfig;
 }
 

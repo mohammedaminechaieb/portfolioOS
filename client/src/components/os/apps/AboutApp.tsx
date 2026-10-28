@@ -1,10 +1,11 @@
 "use client";
 
 import { useData } from "@/context/DataContext";
+import { formatDate } from "@/lib/format";
 
 export default function AboutApp() {
   const { data } = useData();
-  const { profile, education, certifications, competitions } = data;
+  const { profile, education, certifications, competitions, clubs } = data;
 
   return (
     <div className="p-6 font-mono text-sm space-y-6 bg-os-bg/50 min-h-full">
@@ -69,11 +70,18 @@ export default function AboutApp() {
       {certifications.length > 0 && (
         <div>
           <div className="text-os-accent text-xs uppercase tracking-wider mb-2">// Certifications</div>
-          <div className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {certifications.map((c) => (
-              <div key={c.id} className="flex justify-between text-xs">
-                <span className="text-os-text/80">{c.title}</span>
-                <span className="text-os-muted">{c.issuer} · {c.date}</span>
+              <div key={c.id} className="rounded-lg border border-os-border/40 bg-os-border/10 p-2.5">
+                <div className="text-os-text/90 text-xs font-semibold leading-snug">{c.title}</div>
+                <div className="text-os-muted text-[11px] mt-0.5">
+                  {c.issuer}{formatDate(c.date) ? ` · ${formatDate(c.date)}` : ""}
+                </div>
+                {c.category && (
+                  <span className="inline-block mt-1.5 px-1.5 py-0.5 rounded bg-os-accent/10 text-os-accent text-[10px]">
+                    {c.category}
+                  </span>
+                )}
               </div>
             ))}
           </div>
@@ -84,11 +92,39 @@ export default function AboutApp() {
       {competitions.length > 0 && (
         <div>
           <div className="text-os-accent text-xs uppercase tracking-wider mb-2">// Competitions</div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             {competitions.map((c) => (
-              <div key={c.id} className="flex justify-between text-xs">
-                <span className="text-os-text/80">{c.title}</span>
-                <span className="text-os-muted">{c.result} · {c.date}</span>
+              <div key={c.id} className="rounded-lg border border-os-border/40 bg-os-border/10 p-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="text-os-text/90 text-xs font-semibold leading-snug">{c.title}</div>
+                  {c.organizer && (
+                    <span className="shrink-0 px-1.5 py-0.5 rounded bg-os-accent/10 text-os-accent text-[10px]">
+                      {c.organizer}
+                    </span>
+                  )}
+                </div>
+                <div className="text-os-muted text-[11px] mt-0.5">
+                  {c.result}{c.result && formatDate(c.date) ? " · " : ""}{formatDate(c.date)}
+                </div>
+                {c.description && <div className="text-os-text/60 text-[11px] mt-1 leading-relaxed">{c.description}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Clubs */}
+      {clubs.length > 0 && (
+        <div>
+          <div className="text-os-accent text-xs uppercase tracking-wider mb-2">// Clubs &amp; associations</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {clubs.map((c) => (
+              <div key={c.id} className="rounded-lg border border-os-border/40 bg-os-border/10 p-2.5">
+                <div className="text-os-text/90 text-xs font-semibold leading-snug">{c.name}</div>
+                <div className="text-os-muted text-[11px] mt-0.5">
+                  {[c.role, c.period].filter(Boolean).join(" · ")}
+                </div>
+                {c.description && <div className="text-os-text/60 text-[11px] mt-1 leading-relaxed">{c.description}</div>}
               </div>
             ))}
           </div>

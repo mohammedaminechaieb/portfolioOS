@@ -28,12 +28,15 @@ export const api = {
   getCompetitions: () => fetchAPI<any[]>("/api/competitions"),
   getCertifications: () => fetchAPI<any[]>("/api/certifications"),
   getConfig: () => fetchAPI<any>("/api/config"),
+  // newer endpoints: an older backend answers 404, so fall back to empty lists
+  getClubs: () => fetchAPI<any[]>("/api/clubs").catch(() => [] as any[]),
+  getDesigns: () => fetchAPI<any[]>("/api/designs").catch(() => [] as any[]),
   sendMessage: (data: { name: string; email: string; subject?: string; body: string }) =>
     fetchAPI<any>("/api/messages", { method: "POST", body: JSON.stringify(data) }),
 
   // Fetch everything in one go
   async getAll() {
-    const [profile, projects, experience, skills, education, competitions, certifications, config] =
+    const [profile, projects, experience, skills, education, competitions, certifications, config, clubs, designs] =
       await Promise.all([
         this.getProfile(),
         this.getProjects(),
@@ -43,8 +46,10 @@ export const api = {
         this.getCompetitions(),
         this.getCertifications(),
         this.getConfig(),
+        this.getClubs(),
+        this.getDesigns(),
       ]);
-    return { profile, projects, experience, skills, education, competitions, certifications, config };
+    return { profile, projects, experience, skills, education, competitions, certifications, config, clubs, designs };
   },
 };
 

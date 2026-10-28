@@ -2,6 +2,7 @@
 
 import { useData } from "@/context/DataContext";
 import { motion } from "framer-motion";
+import SkillIcon from "@/components/SkillIcon";
 
 const CATEGORY_LABELS: Record<string, { label: string; icon: string }> = {
   language: { label: "Languages", icon: "💻" },
@@ -12,6 +13,7 @@ const CATEGORY_LABELS: Record<string, { label: string; icon: string }> = {
   ai: { label: "AI / ML", icon: "🧠" },
   embedded: { label: "Embedded / IoT", icon: "🔌" },
   tools: { label: "Tools", icon: "🔧" },
+  design: { label: "Design", icon: "🎨" },
 };
 
 export default function SkillsApp() {
@@ -50,17 +52,22 @@ export default function SkillsApp() {
                     transition={{ delay: i * 0.03 }}
                     className="group"
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-os-text/80 text-xs">{skill.name}</span>
-                      <span className="text-os-muted text-[10px]">{skill.level}%</span>
-                    </div>
-                    <div className="h-1.5 bg-os-border/30 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full bg-gradient-to-r from-os-accent/60 to-os-accent"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${skill.level}%` }}
-                        transition={{ duration: 0.8, delay: i * 0.03 }}
-                      />
+                    <div className="flex items-center gap-2.5">
+                      <SkillIcon icon={skill.icon} name={skill.name} size={26} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-os-text/80 text-xs truncate">{skill.name}</span>
+                          <span className="text-os-muted text-[10px]">{skill.level}%</span>
+                        </div>
+                        <div className="h-1.5 bg-os-border/30 rounded-full overflow-hidden">
+                          <motion.div
+                            className="h-full rounded-full bg-gradient-to-r from-os-accent/60 to-os-accent"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${skill.level}%` }}
+                            transition={{ duration: 0.8, delay: i * 0.03 }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                 ))}

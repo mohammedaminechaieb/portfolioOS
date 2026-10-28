@@ -97,6 +97,33 @@ router.delete("/certifications/:id", authMiddleware, async (req: Request, res: R
   } catch { res.status(500).json({ error: "Server error" }); }
 });
 
+/* ── Clubs & Designs (public read, admin write) ── */
+
+function crud(path: string, delegate: () => any) {
+  router.get(`/${path}`, async (_req: Request, res: Response) => {
+    try { res.json(await delegate().findMany({ orderBy: { order: "asc" } })); }
+    catch { res.status(500).json({ error: "Server error" }); }
+  });
+  router.post(`/${path}`, authMiddleware, async (req: Request, res: Response) => {
+    try { res.status(201).json(await delegate().create({ data: req.body })); }
+    catch { res.status(500).json({ error: "Server error" }); }
+  });
+  router.put(`/${path}/:id`, authMiddleware, async (req: Request, res: Response) => {
+    try {
+      const data = req.body; delete data.id;
+      res.json(await delegate().update({ where: { id: req.params.id as string }, data }));
+    } catch { res.status(500).json({ error: "Server error" }); }
+  });
+  router.delete(`/${path}/:id`, authMiddleware, async (req: Request, res: Response) => {
+    try {
+      await delegate().delete({ where: { id: req.params.id as string } });
+      res.json({ message: "Deleted" });
+    } catch { res.status(500).json({ error: "Server error" }); }
+  });
+}
+crud("clubs", () => prisma.club);
+crud("designs", () => prisma.design);
+
 /* ── Site Config ───────────────────────────────── */
 
 router.get("/config", async (_req: Request, res: Response) => {

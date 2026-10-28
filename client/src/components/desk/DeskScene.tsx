@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import {
   motion,
   AnimatePresence,
@@ -10,6 +10,17 @@ import {
 } from "framer-motion";
 import { useData } from "@/context/DataContext";
 import BookViewer, { BookEntry } from "./BookViewer";
+import SkillIcon from "@/components/SkillIcon";
+import { categoryLabel } from "@/lib/format";
+import {
+  AboutBody,
+  ExperienceBody,
+  EducationBody,
+  CertsBody,
+  CompetitionsBody,
+  ClubsBody,
+  DesignsBody,
+} from "./DeskBodies";
 
 /* Seed-based pseudo-random to avoid hydration mismatch */
 function seededRandom(seed: number) {
@@ -35,6 +46,8 @@ interface ShelfItem {
   color: string;
   secondaryColor?: string;
   entries?: BookEntry[];
+  /** Structured content (cards) shown instead of the plain text `content` */
+  body?: ReactNode;
 }
 
 /* ═══════════════════════════════
@@ -363,9 +376,9 @@ function DeskDocument({
                     {item.icon} {item.label}
                   </div>
                   <div className="w-full h-px bg-desk-woodDark/10 mb-3" />
-                  <pre className="text-desk-woodDark/80 text-[13px] font-mono whitespace-pre-wrap leading-relaxed">
+                  {item.body ?? <pre className="text-desk-woodDark/80 text-[13px] font-mono whitespace-pre-wrap leading-relaxed">
                     {item.content || "No entries yet."}
-                  </pre>
+                  </pre>}
                 </div>
               </motion.div>
 
@@ -398,9 +411,9 @@ function DeskDocument({
                 {item.icon} {item.label}
               </div>
               <div className="w-full h-px bg-desk-woodDark/10 mb-3" />
-              <pre className="text-desk-woodDark/80 text-[13px] font-mono whitespace-pre-wrap leading-relaxed">
+              {item.body ?? <pre className="text-desk-woodDark/80 text-[13px] font-mono whitespace-pre-wrap leading-relaxed">
                 {item.content || "No entries yet."}
-              </pre>
+              </pre>}
             </div>
           </motion.div>
         )}
@@ -445,6 +458,8 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
     education,
     certifications,
     competitions,
+    clubs,
+    designs,
   } = data;
   const [openItem, setOpenItem] = useState<ShelfItem | null>(null);
   const [hoveredShelf, setHoveredShelf] = useState<string | null>(null);
@@ -637,7 +652,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
   })();
 
   // Build shelf items from portfolio data
-  const shelfItems: ShelfItem[] = [
+  const shelfItems: ShelfItem[] = ([
     {
       id: "about",
       type: "folder",
@@ -645,6 +660,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
       icon: "📁",
       color: "#c4935a",
       secondaryColor: "#a67b48",
+      body: <AboutBody profile={profile} />,
       content: `${profile.name}\n${profile.title}\n${profile.subtitle}\n\n${profile.bio}\n\n✉  ${profile.email}\n☎  ${profile.phone}\n📍 ${profile.location}\n\nGitHub: ${profile.github}\nLinkedIn: ${profile.linkedin}`,
     },
     {
@@ -680,25 +696,28 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
           const top = [...list].sort((a, b) => b.level - a.level).slice(0, 3);
           return {
             id: cat,
-            tab: cat,
+            tab: categoryLabel(cat),
             left: (
               <div>
-                <div className="text-desk-woodDark font-bold text-lg font-mono capitalize mb-1">
-                  {cat}
+                <div className="text-desk-woodDark font-bold text-lg font-mono mb-1">
+                  {categoryLabel(cat)}
                 </div>
                 <div className="w-12 h-0.5 bg-desk-brass/60 rounded mb-3" />
                 <div className="space-y-2.5">
                   {list.map((s) => (
-                    <div key={s.id}>
-                      <div className="flex justify-between text-[11px] font-mono text-desk-woodDark/80">
-                        <span>{s.name}</span>
-                        <span className="text-desk-woodDark/50">{s.level}%</span>
-                      </div>
-                      <div className="h-1.5 rounded bg-desk-woodDark/10 overflow-hidden">
-                        <div
-                          className="h-full rounded bg-desk-woodDark/60"
-                          style={{ width: `${s.level}%` }}
-                        />
+                    <div key={s.id} className="flex items-center gap-2">
+                      <SkillIcon icon={s.icon} name={s.name} size={22} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between text-[11px] font-mono text-desk-woodDark/80">
+                          <span className="truncate">{s.name}</span>
+                          <span className="text-desk-woodDark/50">{s.level}%</span>
+                        </div>
+                        <div className="h-1.5 rounded bg-desk-woodDark/10 overflow-hidden">
+                          <div
+                            className="h-full rounded bg-desk-woodDark/60"
+                            style={{ width: `${s.level}%` }}
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -723,8 +742,9 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
                   {top.map((t) => (
                     <span
                       key={t.id}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-desk-woodDark/10 text-desk-woodDark/80"
+                      className="inline-flex items-center gap-1.5 pl-1 pr-2 py-0.5 rounded-full text-[10px] font-mono bg-desk-woodDark/10 text-desk-woodDark/80"
                     >
+                      <SkillIcon icon={t.icon} name={t.name} size={16} />
                       {t.name}
                     </span>
                   ))}
@@ -755,6 +775,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
       icon: "💼",
       color: "#8b7355",
       secondaryColor: "#73603f",
+      body: <ExperienceBody items={experience} />,
       content:
         experience.length > 0
           ? experience
@@ -771,6 +792,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
       label: "Education",
       icon: "🎓",
       color: "#f5f0e6",
+      body: <EducationBody items={education} />,
       content:
         education.length > 0
           ? education
@@ -787,6 +809,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
       label: "Certifications",
       icon: "🏅",
       color: "#f5f0e6",
+      body: <CertsBody items={certifications} />,
       content:
         certifications.length > 0
           ? certifications
@@ -803,6 +826,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
       label: "Competitions",
       icon: "🏆",
       color: "#f5f0e6",
+      body: <CompetitionsBody items={competitions} />,
       content:
         competitions.length > 0
           ? competitions
@@ -813,7 +837,31 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
               .join("\n\n")
           : "No competitions yet.",
     },
-  ];
+    {
+      id: "clubs",
+      type: "paper",
+      label: "Clubs",
+      icon: "🤝",
+      color: "#f5f0e6",
+      body: <ClubsBody items={clubs} />,
+      content: clubs.map((c) => c.name).join(", "),
+    },
+    {
+      id: "designs",
+      type: "folder",
+      label: "Designs",
+      icon: "🎨",
+      color: "#8f6a8a",
+      secondaryColor: "#765572",
+      body: <DesignsBody items={designs} />,
+      content: designs.map((d) => d.title).join(", "),
+    },
+  ] as ShelfItem[]).filter((it) => {
+    // hide shelf items that have nothing in them yet
+    if (it.id === "clubs") return clubs.length > 0;
+    if (it.id === "designs") return designs.length > 0;
+    return true;
+  });
 
   const drawerLeft = shelfItems.filter((_, i) => i < 3);
   const drawerRight = shelfItems.filter((_, i) => i >= 3);

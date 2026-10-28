@@ -11,6 +11,7 @@ import SkillsApp from "./apps/SkillsApp";
 import ExperienceApp from "./apps/ExperienceApp";
 import ContactApp from "./apps/ContactApp";
 import Terminal from "./apps/Terminal";
+import DesignsApp from "./apps/DesignsApp";
 
 interface DesktopProps {
   onSwitchToDesk: () => void;
@@ -21,6 +22,7 @@ const APP_DEFS: Record<string, { title: string; icon: string; width: number; hei
   projects:   { title: "Projects",   icon: "📁", width: 800, height: 540 },
   skills:     { title: "Skills",     icon: "⚡", width: 600, height: 500 },
   experience: { title: "Experience", icon: "💼", width: 620, height: 520 },
+  designs:    { title: "Designs",    icon: "🎨", width: 720, height: 520 },
   contact:    { title: "Contact",    icon: "✉️", width: 680, height: 440 },
   terminal:   { title: "Terminal",   icon: "⬛", width: 720, height: 460 },
 };
@@ -30,6 +32,7 @@ const APP_COMPONENTS: Record<string, React.FC> = {
   projects: ProjectsApp,
   skills: SkillsApp,
   experience: ExperienceApp,
+  designs: DesignsApp,
   contact: ContactApp,
   terminal: Terminal,
 };
