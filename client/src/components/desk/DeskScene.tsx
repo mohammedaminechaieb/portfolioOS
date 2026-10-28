@@ -9,6 +9,7 @@ import {
   useSpring,
 } from "framer-motion";
 import { useData } from "@/context/DataContext";
+import BookViewer, { BookEntry } from "./BookViewer";
 
 /* Seed-based pseudo-random to avoid hydration mismatch */
 function seededRandom(seed: number) {
@@ -33,6 +34,7 @@ interface ShelfItem {
   content: string;
   color: string;
   secondaryColor?: string;
+  entries?: BookEntry[];
 }
 
 /* ═══════════════════════════════
@@ -242,8 +244,15 @@ function DeskDocument({
         }}
         style={{ perspective: "1200px" }}
       >
-        {item.type === "book" ? (
-          /* ══ OPEN BOOK ═══ */
+        {item.type === "book" && item.entries && item.entries.length > 0 ? (
+          <BookViewer
+            title={item.label}
+            icon={item.icon}
+            coverColor={item.color}
+            entries={item.entries}
+          />
+        ) : item.type === "book" ? (
+          /* ══ OPEN BOOK (plain fallback) ═══ */
           <div className="flex" style={{ perspective: "1200px" }}>
             {/* Left — cover page */}
             <motion.div
@@ -399,7 +408,7 @@ function DeskDocument({
         {/* ── Close button ── */}
         <motion.button
           onClick={onClose}
-          className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-desk-woodDark/90 hover:bg-desk-woodDark text-desk-paper/70 hover:text-desk-paper px-5 py-2 rounded-full text-[11px] font-mono tracking-wider flex items-center gap-2 shadow-xl backdrop-blur-sm transition-colors border border-desk-paper/5"
+          className={`absolute left-1/2 -translate-x-1/2 ${item.type === "book" && item.entries?.length ? "-bottom-16" : "-bottom-12"} bg-desk-woodDark/90 hover:bg-desk-woodDark text-desk-paper/70 hover:text-desk-paper px-5 py-2 rounded-full text-[11px] font-mono tracking-wider flex items-center gap-2 shadow-xl backdrop-blur-sm transition-colors border border-desk-paper/5`}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -442,6 +451,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
   const [monitorHover, setMonitorHover] = useState(false);
   const [time, setTime] = useState("--:--");
   const [mounted, setMounted] = useState(false);
+  const shelfRef = useRef<HTMLDivElement>(null);
 
   // Hydration-safe mount
   useEffect(() => { setMounted(true); }, []);
@@ -507,6 +517,69 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
       label: "Projects",
       icon: "📖",
       color: "#6b3a2a",
+      entries: projects.map((p) => ({
+        id: p.id,
+        tab: p.title,
+        left: (
+          <div>
+            <div className="text-[9px] font-mono uppercase tracking-widest text-desk-woodDark/40 mb-1">
+              {p.category || "Project"}
+              {p.featured ? " · ⭐ featured" : ""}
+            </div>
+            <div className="text-desk-woodDark font-bold text-lg font-mono leading-tight mb-2">
+              {p.title}
+            </div>
+            <div className="w-12 h-0.5 bg-desk-brass/60 rounded mb-3" />
+            <p className="text-desk-woodDark/80 text-[12.5px] font-mono leading-relaxed whitespace-pre-wrap">
+              {p.longDesc || p.description}
+            </p>
+          </div>
+        ),
+        right: (
+          <div>
+            <div className="text-[9px] font-mono uppercase tracking-widest text-desk-woodDark/40 mb-2">
+              Tech stack
+            </div>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {p.techStack.map((t) => (
+                <span
+                  key={t}
+                  className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-desk-woodDark/10 text-desk-woodDark/80"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+            {p.longDesc && p.description && (
+              <p className="text-desk-woodDark/70 text-[12px] font-mono leading-relaxed mb-4">
+                {p.description}
+              </p>
+            )}
+            <div className="space-y-1.5">
+              {p.liveUrl && (
+                <a
+                  href={p.liveUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-[11px] font-mono text-blue-800 underline underline-offset-2 break-all"
+                >
+                  🔗 Live demo
+                </a>
+              )}
+              {p.githubUrl && (
+                <a
+                  href={p.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-[11px] font-mono text-blue-800 underline underline-offset-2 break-all"
+                >
+                  💻 Source code
+                </a>
+              )}
+            </div>
+          </div>
+        ),
+      })),
       content:
         projects.length > 0
           ? projects
@@ -523,6 +596,70 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
       label: "Skills",
       icon: "🛠️",
       color: "#2c5f2d",
+      entries: (() => {
+        const cats: Record<string, typeof skills> = {};
+        skills.forEach((s) => (cats[s.category] ||= []).push(s));
+        return Object.entries(cats).map(([cat, list]) => {
+          const avg = Math.round(
+            list.reduce((a, b) => a + b.level, 0) / list.length
+          );
+          const top = [...list].sort((a, b) => b.level - a.level).slice(0, 3);
+          return {
+            id: cat,
+            tab: cat,
+            left: (
+              <div>
+                <div className="text-desk-woodDark font-bold text-lg font-mono capitalize mb-1">
+                  {cat}
+                </div>
+                <div className="w-12 h-0.5 bg-desk-brass/60 rounded mb-3" />
+                <div className="space-y-2.5">
+                  {list.map((s) => (
+                    <div key={s.id}>
+                      <div className="flex justify-between text-[11px] font-mono text-desk-woodDark/80">
+                        <span>{s.name}</span>
+                        <span className="text-desk-woodDark/50">{s.level}%</span>
+                      </div>
+                      <div className="h-1.5 rounded bg-desk-woodDark/10 overflow-hidden">
+                        <div
+                          className="h-full rounded bg-desk-woodDark/60"
+                          style={{ width: `${s.level}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ),
+            right: (
+              <div>
+                <div className="text-[9px] font-mono uppercase tracking-widest text-desk-woodDark/40 mb-2">
+                  At a glance
+                </div>
+                <div className="text-4xl font-bold font-mono text-desk-woodDark mb-0.5">
+                  {list.length}
+                </div>
+                <div className="text-[11px] font-mono text-desk-woodDark/60 mb-4">
+                  skills · average {avg}%
+                </div>
+                <div className="text-[9px] font-mono uppercase tracking-widest text-desk-woodDark/40 mb-2">
+                  Strongest
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {top.map((t) => (
+                    <span
+                      key={t.id}
+                      className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-desk-woodDark/10 text-desk-woodDark/80"
+                    >
+                      {t.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ),
+          };
+        });
+      })(),
       content: (() => {
         if (skills.length === 0) return "No skills added yet.";
         const grouped: Record<string, string[]> = {};
@@ -682,8 +819,9 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
         </motion.div>
 
         {/* ══ OVERHEAD SHELF ══ */}
+        <div className="absolute bottom-0 inset-x-0 flex justify-center">
         <motion.div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4"
+          className="w-full max-w-4xl px-2 md:px-4"
           style={{ x: shelfX }}
         >
           {/* Shelf plank */}
@@ -692,7 +830,16 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
             {/* Edge highlight */}
             <div className="absolute top-0 left-0 right-0 h-px bg-desk-brass/10" />
 
-            <div className="relative flex items-end justify-center gap-2 md:gap-4 px-3 py-2.5 min-h-[75px]">
+            <div
+              ref={shelfRef}
+              className="relative overflow-x-auto overflow-y-visible shelf-scroll"
+              onWheel={(e) => {
+                if (shelfRef.current && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                  shelfRef.current.scrollLeft += e.deltaY;
+                }
+              }}
+            >
+            <div className="flex items-end w-max min-w-full justify-center gap-3 md:gap-4 px-4 pt-7 pb-2.5 min-h-[75px]">
               {shelfItems.map((item, idx) => (
                 <motion.button
                   key={item.id}
@@ -780,6 +927,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
                 </motion.button>
               ))}
             </div>
+            </div>
           </div>
 
           {/* Shelf brackets */}
@@ -788,6 +936,7 @@ export default function DeskScene({ onOpenOS }: DeskSceneProps) {
             <div className="shelf-bracket" />
           </div>
         </motion.div>
+        </div>
       </div>
 
       {/* ══════════════════════════════
