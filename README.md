@@ -2,29 +2,27 @@
 
 A dual-mode interactive portfolio website featuring an **OS Mode** (retro operating system interface) and a **Desk Mode** (realistic wooden desk environment).
 
-Built with **Next.js 15**, **Express**, **Prisma**, and **PostgreSQL**.
-
----
+Built with Next.js 15, Express, Prisma, and PostgreSQL.
 
 ## Features
 
 ### 🖥️ OS Mode
-- Boot sequence animation with kernel loading, hardware detection
+- Boot sequence animation with kernel loading and hardware detection
 - Draggable, resizable windows with traffic-light controls
 - 6 application windows: About, Projects, Skills, Experience, Contact, Terminal
 - Interactive terminal with commands: `help`, `neofetch`, `about`, `projects`, `skills`, `cat`, etc.
-- Taskbar with app launchers, open window indicators, system clock
+- Taskbar with app launchers, open window indicators, and a system clock
 
 ### 🪵 Desk Mode
 - Wooden desk surface with leather desk pad and brass nameplate
-- Monitor on desk — click to boot into OS Mode
+- Monitor on the desk: click to boot into OS Mode
 - Overhead shelf with books, folders, and papers containing portfolio info
 - Click any shelf item to open and read its contents
 
 ### 🔐 Admin Panel (`/admin`)
 - JWT authentication
 - Manage Profile, Projects, Experience, Skills
-- View and manage Contact form messages
+- View and manage contact form messages
 - Site settings (OS name, accent color, default mode)
 
 ### 📊 Database
@@ -32,21 +30,17 @@ Built with **Next.js 15**, **Express**, **Prisma**, and **PostgreSQL**.
 - Full CRUD API for all content
 - Seed script with real portfolio data
 
----
-
 ## Tech Stack
 
-| Layer     | Technology                          |
-|-----------|-------------------------------------|
-| Frontend  | Next.js 15, React 19, TypeScript    |
-| Styling   | Tailwind CSS 3, Framer Motion 11    |
-| Backend   | Express.js, TypeScript              |
-| ORM       | Prisma                              |
-| Database  | PostgreSQL                          |
-| Auth      | JWT (jsonwebtoken, bcryptjs)        |
-| Deploy    | Vercel (frontend), Render (backend) |
-
----
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 15, React 19, TypeScript |
+| Styling | Tailwind CSS 3, Framer Motion 11 |
+| Backend | Express.js, TypeScript |
+| ORM | Prisma |
+| Database | PostgreSQL |
+| Auth | JWT (jsonwebtoken, bcryptjs) |
+| Hosting | Render (frontend, backend, and database) |
 
 ## Project Structure
 
@@ -86,12 +80,10 @@ portfolio/
 └── README.md
 ```
 
----
-
 ## Local Development Setup
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - PostgreSQL 14+ (local or Docker)
 - npm or yarn
 
@@ -112,25 +104,29 @@ npm install
 
 ### 2. Configure environment variables
 
-**Server** — create `server/.env`:
+**Server**: create `server/.env`:
+
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/portfolio_db"
-JWT_SECRET="your-super-secret-jwt-key-change-this"
+JWT_SECRET="replace-with-a-long-random-string"
 CLIENT_URL="http://localhost:3000"
 PORT=4000
 ```
 
-**Client** — create `client/.env.local`:
+**Client**: create `client/.env.local`:
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:4000
 ```
+
+> Never commit `.env` files. Make sure both are listed in `.gitignore`.
 
 ### 3. Set up the database
 
 ```bash
 cd server
 
-# Create the database (if not exists)
+# Create the database (if it doesn't exist)
 createdb portfolio_db
 
 # Run Prisma migrations
@@ -143,143 +139,156 @@ npm run db:seed
 ### 4. Start development servers
 
 ```bash
-# Terminal 1 — Backend
+# Terminal 1: Backend
 cd server
 npm run dev
 
-# Terminal 2 — Frontend
+# Terminal 2: Frontend
 cd client
 npm run dev
 ```
 
 Visit:
-- **Portfolio**: http://localhost:3000
-- **Admin**: http://localhost:3000/admin
-- **API Health**: http://localhost:4000/api/health
+- Portfolio: http://localhost:3000
+- Admin: http://localhost:3000/admin
+- API health: http://localhost:4000/api/health
 
-### Default admin credentials
-- **Email**: `m.amine.chaieb@gmail.com`
-- **Password**: `admin123`
+### Admin account
 
-⚠️ **Change the password after first login!**
-
----
+The seed script creates the admin user. **Do not keep a default or shared password.** After seeding, log in at `/admin` and change the password immediately. If you make this repository public, keep the admin email and password out of the README and out of committed files.
 
 ## Deployment
 
-### Backend — Render
+Everything is hosted on **Render**: a PostgreSQL database, the Express backend, and the Next.js frontend. Deploy in this order: database, backend, frontend. The frontend needs the backend URL, and the backend needs the frontend URL for CORS.
 
-1. **Create a PostgreSQL database** on [Render](https://render.com):
-   - Go to Dashboard → New → PostgreSQL
-   - Copy the **Internal Database URL**
+### 1. Database: Render PostgreSQL
 
-2. **Create a Web Service**:
-   - Connect your GitHub repo
-   - **Root Directory**: `server`
-   - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npx prisma migrate deploy && node dist/index.js`
-   - **Environment**: Node
+Go to Dashboard → New → PostgreSQL. Copy the **Internal Database URL** (used by the backend) and the **External Database URL** (used to seed from your own machine).
 
-3. **Set environment variables** on Render:
-   ```
+> Render's free PostgreSQL databases expire after about 30 days. For a long-lived portfolio, use a paid Render database or a free provider without expiry (e.g. Neon or Supabase) and use its connection string as `DATABASE_URL`.
+
+### 2. Backend: Render Web Service
+
+1. Dashboard → New → Web Service, and connect your GitHub repo.
+2. Settings:
+   - Root Directory: `server`
+   - Runtime: Node
+   - Build Command: `npm install && npx prisma generate && npm run build`
+   - Start Command: `npx prisma migrate deploy && node dist/index.js`
+3. Environment variables:
+
+   ```env
    DATABASE_URL=<your-render-internal-postgres-url>
    JWT_SECRET=<generate-a-strong-random-string>
-   CLIENT_URL=https://your-app.vercel.app
-   PORT=4000
+   CLIENT_URL=https://your-frontend.onrender.com
    ```
 
-4. **Seed the database** (one-time):
-   - Open the Render Shell for your service
-   - Run: `node dist/seed.js`
+   Render provides `PORT` automatically, and your server should read `process.env.PORT`. You don't need to set it manually. If you don't know the frontend URL yet, deploy the frontend first with a placeholder API URL, or come back and update `CLIENT_URL` after step 3.
 
-   Or use Docker:
-   ```
-   Root Directory: server
-   Dockerfile Path: ./Dockerfile
-   ```
+**Alternative: Docker.** Set Root Directory to `server` and Dockerfile Path to `./Dockerfile`.
 
-### Frontend — Vercel
+### 3. Frontend: Render Web Service
 
-1. **Import project** on [Vercel](https://vercel.com):
-   - Connect your GitHub repo
-   - **Root Directory**: `client`
-   - **Framework Preset**: Next.js
+1. Dashboard → New → Web Service, and connect the same GitHub repo.
+2. Settings:
+   - Root Directory: `client`
+   - Runtime: Node
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npm start`
+3. Environment variable:
 
-2. **Set environment variable**:
-   ```
+   ```env
    NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
    ```
 
-3. **Deploy** — Vercel auto-detects Next.js and deploys.
+   `NEXT_PUBLIC_*` variables are baked in at build time. If you change this value later, trigger a new deploy.
+4. Once the frontend is live, set `CLIENT_URL` on the backend to the frontend's URL and redeploy the backend.
+
+### 4. Seed the database (one time)
+
+The Render Shell is not available on the free plan, so run the seed from your own machine against the **External** database URL:
+
+```bash
+cd server
+DATABASE_URL="<your-render-external-postgres-url>" npm run db:seed
+```
+
+Then log in at `/admin` and change the admin password.
+
+### Keeping services awake (UptimeRobot)
+
+Render's free web services spin down after about 15 minutes without traffic, and the next request can take 30-60 seconds to wake them up. To avoid this, create two free monitors at [UptimeRobot](https://uptimerobot.com):
+
+| Monitor | URL |
+|---------|-----|
+| Backend | `https://your-backend.onrender.com/api/health` |
+| Frontend | `https://your-frontend.onrender.com` |
+
+Set the type to HTTP(s) and the interval to 5 minutes (anything under 15 keeps the service awake).
+
+> **Free-hours limit:** Render's free plan gives about 750 instance hours per month per workspace. One service running 24/7 uses about 744, so two always-awake free services will exceed the limit and get suspended until the month resets. If you keep both awake, upgrade at least one service to a paid instance, or only ping the backend and accept a short wake-up on the frontend.
 
 ### Post-deployment checklist
 
-- [ ] Visit your Vercel URL — should show the desk
-- [ ] Click the monitor to boot into OS mode
+- [ ] Visit your frontend URL: it should show the desk
+- [ ] Click the monitor to boot into OS Mode
 - [ ] Test the overhead shelf
 - [ ] Open the terminal and run `neofetch`
 - [ ] Go to `/admin` and log in
-- [ ] **Change the default admin password**
+- [ ] Change the admin password
 - [ ] Test the contact form
 - [ ] Check all window apps work
-
----
+- [ ] Confirm the UptimeRobot monitors report your services as up
 
 ## API Endpoints
 
 ### Public
-| Method | Endpoint              | Description          |
-|--------|-----------------------|----------------------|
-| GET    | `/api/profile`        | Get profile info     |
-| GET    | `/api/projects`       | List projects        |
-| GET    | `/api/projects/:slug` | Get project by slug  |
-| GET    | `/api/experience`     | List experience      |
-| GET    | `/api/skills`         | List skills          |
-| GET    | `/api/education`      | List education       |
-| GET    | `/api/competitions`   | List competitions    |
-| GET    | `/api/certifications` | List certifications  |
-| GET    | `/api/config`         | Get site config      |
-| POST   | `/api/messages`       | Submit contact form  |
-| GET    | `/api/health`         | Health check         |
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/profile` | Get profile info |
+| GET | `/api/projects` | List projects |
+| GET | `/api/projects/:slug` | Get project by slug |
+| GET | `/api/experience` | List experience |
+| GET | `/api/skills` | List skills |
+| GET | `/api/education` | List education |
+| GET | `/api/competitions` | List competitions |
+| GET | `/api/certifications` | List certifications |
+| GET | `/api/config` | Get site config |
+| POST | `/api/messages` | Submit contact form |
+| GET | `/api/health` | Health check |
 
 ### Admin (requires JWT)
-| Method | Endpoint                 | Description           |
-|--------|--------------------------|-----------------------|
-| POST   | `/api/auth/login`        | Login, get JWT        |
-| GET    | `/api/auth/me`           | Verify token          |
-| PUT    | `/api/profile`           | Update profile        |
-| POST   | `/api/projects`          | Create project        |
-| PUT    | `/api/projects/:id`      | Update project        |
-| DELETE | `/api/projects/:id`      | Delete project        |
-| POST   | `/api/experience`        | Create experience     |
-| PUT    | `/api/experience/:id`    | Update experience     |
-| DELETE | `/api/experience/:id`    | Delete experience     |
-| POST   | `/api/skills`            | Create skill          |
-| PUT    | `/api/skills/:id`        | Update skill          |
-| DELETE | `/api/skills/:id`        | Delete skill          |
-| GET    | `/api/messages`          | List messages         |
-| PUT    | `/api/messages/:id/read` | Mark message read     |
-| DELETE | `/api/messages/:id`      | Delete message        |
-| PUT    | `/api/config`            | Update site config    |
 
----
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Login, get JWT |
+| GET | `/api/auth/me` | Verify token |
+| PUT | `/api/profile` | Update profile |
+| POST | `/api/projects` | Create project |
+| PUT | `/api/projects/:id` | Update project |
+| DELETE | `/api/projects/:id` | Delete project |
+| POST | `/api/experience` | Create experience |
+| PUT | `/api/experience/:id` | Update experience |
+| DELETE | `/api/experience/:id` | Delete experience |
+| POST | `/api/skills` | Create skill |
+| PUT | `/api/skills/:id` | Update skill |
+| DELETE | `/api/skills/:id` | Delete skill |
+| GET | `/api/messages` | List messages |
+| PUT | `/api/messages/:id/read` | Mark message read |
+| DELETE | `/api/messages/:id` | Delete message |
+| PUT | `/api/config` | Update site config |
 
 ## Customization
 
 ### Colors
 Edit `client/tailwind.config.ts` to change the color scheme:
-- `os-*` colors control OS mode appearance
-- `desk-*` colors control Desk mode appearance
+- `os-*` colors control OS Mode appearance
+- `desk-*` colors control Desk Mode appearance
 - `os-accent` is the primary accent (default: `#0ea5e9`)
 
-### Boot Text
-Edit the seed script or update via admin panel to change the boot sequence messages.
+### Boot text
+Edit the seed script or update via the admin panel to change the boot sequence messages.
 
-### Terminal Commands
+### Terminal commands
 Add new commands in `client/src/components/os/apps/Terminal.tsx` in the `runCommand` switch statement.
-
----
-
-## License
-
-MIT
